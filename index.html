@@ -939,7 +939,116 @@
   .cert-modal iframe {
     flex: 1; width: 100%; border: none;
   }
+  /* ─── CONTACT FORM MODAL ─── */
+  .contact-modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 1000;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(10px);
+  }
+  .contact-modal-overlay.open { display: flex; }
+  .contact-modal {
+    position: relative;
+    width: 90vw; max-width: 520px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-bright);
+    animation: fadeUp 0.4s ease forwards;
+  }
+  .contact-modal-hdr {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .contact-modal-hdr .cm-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.05em;
+  }
+  .contact-modal-hdr .cm-title span { color: var(--accent); }
+  .contact-modal-hdr .cm-close {
+    background: none; border: 1px solid var(--border);
+    color: var(--white-dim); width: 32px; height: 32px;
+    font-size: 1.1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .contact-modal-hdr .cm-close:hover { border-color: var(--accent); color: var(--accent); }
+  .contact-form { padding: 28px; display: flex; flex-direction: column; gap: 18px; }
+  .contact-form .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .contact-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .contact-form label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .contact-form input,
+  .contact-form textarea {
+    background: var(--off-black);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.3s;
+    resize: vertical;
+    cursor: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    user-select: text;
+    pointer-events: all;
+  }
+  .contact-form input:focus,
+  .contact-form textarea:focus { border-color: var(--accent); }
+  .contact-form input::placeholder,
+  .contact-form textarea::placeholder { color: rgba(240,237,230,0.2); }
+  .contact-form textarea { min-height: 120px; }
+  .contact-form .form-submit {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 14px 32px;
+    background: var(--accent);
+    color: var(--black);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem; font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: none; cursor: pointer;
+    position: relative; overflow: hidden;
+    transition: transform 0.3s ease, opacity 0.3s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .contact-form .form-submit:hover { transform: translateY(-2px); }
+  .contact-form .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .contact-form .form-submit::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--accent-bright);
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .contact-form .form-submit:not(:disabled):hover::before { transform: translateX(0); }
+  .contact-form .form-submit span { position: relative; z-index: 1; }
+  .form-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    text-align: center;
+    padding: 4px 0;
+    min-height: 20px;
+    transition: opacity 0.3s;
+  }
+  .form-status.success { color: #4caf50; }
+  .form-status.error { color: #e57373; }
+  @media (max-width: 768px) {
+    .contact-form .form-row { grid-template-columns: 1fr; gap: 18px; }
+    .contact-modal { width: 95vw; }
+    .contact-form { padding: 20px; }
+  }
 </style>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -1394,9 +1503,9 @@
   <div class="section-title reveal">Open for <em>Opportunities</em></div>
   <p class="contact-sub reveal">Internships, collaborations, projects — I'm always excited to connect with people building the future with AI. Drop a message, let's create something remarkable.</p>
   <div class="contact-links reveal">
-    <a href="mailto:kattacharanraj@gmail.com" class="contact-link">
+    <a href="javascript:void(0)" onclick="openContactModal()" class="contact-link">
       <span>✉</span>
-      <span>kattacharanraj@gmail.com</span>
+      <span>Send me a message</span>
     </a>
     <a href="https://www.linkedin.com/in/kattacharanraj/" target="_blank" class="contact-link">
       <span>in</span>
@@ -1417,6 +1526,38 @@
 <footer>
   <div class="footer-copy">© 2025 Katta Charan Raj — All rights reserved</div>
 </footer>
+
+<!-- CONTACT FORM MODAL -->
+<div class="contact-modal-overlay" id="contactFormModal">
+  <div class="contact-modal">
+    <div class="contact-modal-hdr">
+      <div class="cm-title">✉ <span>Get in Touch</span></div>
+      <button class="cm-close" onclick="closeContactModal()">✕</button>
+    </div>
+    <form class="contact-form" id="contactForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sender_name">Your Name</label>
+          <input type="text" id="sender_name" name="from_name" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label for="sender_email">Your Email</label>
+          <input type="email" id="sender_email" name="reply_to" placeholder="john@example.com" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject" placeholder="Collaboration opportunity" required>
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" placeholder="Hey Charan, I'd love to connect about..." required></textarea>
+      </div>
+      <div class="form-status" id="formStatus"></div>
+      <button type="submit" class="form-submit" id="submitBtn"><span>Send Message →</span></button>
+    </form>
+  </div>
+</div>
 
 <!-- CERTIFICATE MODAL -->
 <div class="cert-modal-overlay" id="certModal">
@@ -1532,7 +1673,7 @@ document.getElementById('certModal').addEventListener('click', function(e) {
   if (e.target === this) closeCertModal();
 });
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { closeCertModal(); closeHRModal(); closeAIModal(); closeCommModal(); closeProbModal(); }
+  if (e.key === 'Escape') { closeCertModal(); closeHRModal(); closeAIModal(); closeCommModal(); closeProbModal(); closeContactModal(); }
 });
 
 function openAIModal() { document.getElementById('aiModal').classList.add('open'); document.body.style.overflow='hidden'; }
@@ -1664,6 +1805,47 @@ document.addEventListener('selectstart', e => {
 
 // Block copy event
 document.addEventListener('copy', e => e.preventDefault());
+// ─── CONTACT FORM (EmailJS) ───
+emailjs.init('Ug50Jal5H-avkWz-C');
+
+function openContactModal() {
+  document.getElementById('contactFormModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeContactModal() {
+  document.getElementById('contactFormModal').classList.remove('open');
+  document.body.style.overflow = '';
+  const st = document.getElementById('formStatus');
+  st.textContent = ''; st.className = 'form-status';
+}
+document.getElementById('contactFormModal').addEventListener('click', function(e) {
+  if (e.target === this) closeContactModal();
+});
+
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const status = document.getElementById('formStatus');
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Sending...';
+  status.textContent = '';
+  status.className = 'form-status';
+
+  emailjs.sendForm('service_2g4uekh', 'template_40n8r3z', this)
+    .then(function() {
+      status.textContent = '✓ Message sent successfully! I\'ll get back to you soon.';
+      status.className = 'form-status success';
+      btn.querySelector('span').textContent = 'Send Message →';
+      btn.disabled = false;
+      document.getElementById('contactForm').reset();
+      setTimeout(closeContactModal, 3000);
+    }, function() {
+      status.textContent = '✕ Failed to send. Please try again or email me directly.';
+      status.className = 'form-status error';
+      btn.querySelector('span').textContent = 'Send Message →';
+      btn.disabled = false;
+    });
+});
 </script>
 </body>
 </html>
